@@ -16,15 +16,15 @@ export class App extends Component {
   };
 
   handleFormSubmit = input => {
-    let contactsArr = [];
-    contactsArr = this.state.contacts.map(contact => contact.name);
-    if (!contactsArr.includes(input.name)) {
-      let updatedContactsArr = [];
-      updatedContactsArr = [
-        ...this.state.contacts,
-        { id: nanoid(), name: input.name, number: input.number },
-      ];
-      return this.setState({ ...this.state, contacts: updatedContactsArr });
+    if (
+      !this.state.contacts.map(contact => contact.name).includes(input.name)
+    ) {
+      this.setState(prev => ({
+        contacts: [
+          ...prev.contacts,
+          { id: nanoid(), name: input.name, number: input.number },
+        ],
+      }));
     } else {
       alert(`${input.name} is already in contacts.`);
     }
@@ -35,23 +35,16 @@ export class App extends Component {
   };
 
   filteredContacts = contacts => {
-    let filteredContactsArr = contacts.filter(contact =>
-      contact.name.toUpperCase().includes(this.state.filter)
+    let arr = contacts.filter(contact =>
+      contact.name.toLocaleUpperCase().includes(this.state.filter)
     );
-    return filteredContactsArr;
+    return arr;
   };
 
-  elementDelete = (contacts, id) => {
-    let contactsArr = contacts.filter(contact => contact.id !== id);
-    return contactsArr;
-  };
-
-  deleteContactFromArr = id => {
-    let contactsArrAfterDel = this.elementDelete(this.state.contacts, id);
-    this.setState({
-      ...this.state,
-      contacts: [...contactsArrAfterDel],
-    });
+  handleElementDelete = id => {
+    this.setState(state => ({
+      contacts: [...this.state.contacts].filter(contact => contact.id !== id),
+    }));
   };
 
   render() {
@@ -63,7 +56,7 @@ export class App extends Component {
         <Filter onFilterInput={this.setFilterToState} />
         <ContactList
           contacts={this.filteredContacts(this.state.contacts)}
-          del={this.deleteContactFromArr}
+          onContactDelete={this.handleElementDelete}
         />
       </div>
     );
